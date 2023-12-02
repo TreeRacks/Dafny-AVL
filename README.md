@@ -1,3 +1,3 @@
- ## Red-and-Black 
+ ## Dafny-AVL  
 
-A verification of a red-black data structure implementation using Dafny.
+A verification of a AVL tree data structure implementation using Dafny.
