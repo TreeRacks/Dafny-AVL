@@ -1,5 +1,5 @@
 
-datatype AVLnode = Leaf  |  Node(leftNode: AVLnode, height: nat, number: int, rightNode: AVLnode)
+datatype AVLnode = Leaf  |  Node(leftNode: AVLnode, rightNode: AVLnode, height: nat, number: int)
 
 /* Ensure the AVL tree is a binary search tree */
 predicate BST(leftTree:AVLnode, number:int, rightTree:AVLnode, repr: set<AVLnode>)
