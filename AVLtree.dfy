@@ -12,6 +12,16 @@ predicate BST(leftTree:AVLnode, number:int, rightTree:AVLnode, repr: set<AVLnode
     (rightTree == Leaf || (rightTree in repr))
 }
 
+/* Verifies that the root number is in the AVLtree */
+predicate check_root(root: AVLnode)
+{
+    if(root == Leaf)
+        then
+            true
+        else
+            root.number in get_numbers(root)
+}
+
 /* Function that returns the numbers in an AVL tree in order */
 function get_numbers(currNode:AVLnode): set<int>
 decreases currNode
@@ -52,6 +62,7 @@ function max (x:int, y:int): int
         y
 }
 
+/* Verifies that the AVL tree is balanced and the balance factor of any node is never greater than 1 or less than -1 */
 function check_balance(node:AVLnode): bool
 requires node != Leaf
 {
@@ -63,6 +74,7 @@ requires node != Leaf
     false
 }
 
+/* Verifies that the height of the root of the tree is correct */
 function verify_height(root: AVLnode): bool
 requires root != Leaf
 {
@@ -73,7 +85,7 @@ requires root != Leaf
 
 /* Ensures the AVL tree is correct */
 predicate isValidAndBalanced (root: AVLnode)
-ensures   root.Node? ==> root.number in get_numbers(root);
+ensures check_root(root)
 decreases root
 {
     if(root == Leaf)
