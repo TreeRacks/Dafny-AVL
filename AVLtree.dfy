@@ -44,6 +44,7 @@ decreases currNode
         get_nodes(currNode.leftNode) + get_nodes(currNode.rightNode) + {currNode}
 }
 
+/* Gets the height of a node */
 function get_node_height(node:AVLnode): nat
 {
     if(node == Leaf)
@@ -53,6 +54,7 @@ function get_node_height(node:AVLnode): nat
         node.height
 }
 
+/* Gets the maxium of 2 integers */
 function max (x:int, y:int): int
 {
     if x >= y
@@ -62,9 +64,10 @@ function max (x:int, y:int): int
         y
 }
 
+/* Searches an AVL tree and checks if a number is present within it */
 function search(findNumber: int, root: AVLnode) : (results: bool)
     requires isValidAndBalanced(root)
-    ensures (findNumber in get_numbers(root)) == results //Making sure the x number that you are searching is in the AVL tree then make sure post condition result equals to x
+    ensures (findNumber in get_numbers(root)) == results //Making sure the number that you are searching is in the AVL tree then make sure post condition result equals to the number
     decreases root
 {
     if(root == Leaf) then //empty
@@ -114,4 +117,14 @@ decreases root
         check_balance(root) &&
         verify_height(root) && 
         BST(root.leftNode, root.number, root.rightNode, get_nodes(root))
+}
+
+// Creates a new tree given 2 valid AVL trees and a new number
+function createAVLTree(leftTree: AVLnode, newNum: int, rightTree: AVLnode): (result:AVLnode) // cost in O(1)
+requires isValidAndBalanced(leftTree)
+requires isValidAndBalanced(rightTree)
+requires -1 <= get_node_height(leftTree) - get_node_height(rightTree) <= 1
+requires BST(leftTree, newNum, rightTree, get_nodes(leftTree) + get_nodes(rightTree))
+{
+    Node(leftTree, rightTree, 1 + max (get_node_height(leftTree), get_node_height(rightTree)), newNum)
 }
