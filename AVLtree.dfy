@@ -2,14 +2,14 @@
 datatype AVLnode = Leaf  |  Node(leftNode: AVLnode, rightNode: AVLnode, height: nat, number: int)
 
 /* Ensure the AVL tree is a binary search tree */
-predicate BST(leftTree:AVLnode, number:int, rightTree:AVLnode, repr: set<AVLnode>)
+predicate BST(leftTree:AVLnode, number:int, rightTree:AVLnode, allNodes: set<AVLnode>)
 {
     var leftNumbers := get_numbers(leftTree);
     var rightNumbers := get_numbers(rightTree);
     (forall i: int :: i in leftNumbers ==> i < number) && 
     (forall j: int :: j in rightNumbers ==> number < j) &&
-    (leftTree == Leaf || (leftTree in repr && BST(leftTree.leftNode, leftTree.number, leftTree.rightNode, repr))) &&
-    (rightTree == Leaf || (rightTree in repr))
+    (leftTree == Leaf || (leftTree in allNodes && BST(leftTree.leftNode, leftTree.number, leftTree.rightNode, allNodes))) &&
+    (rightTree == Leaf || (rightTree in allNodes))
 }
 
 /* Verifies that the root number is in the AVLtree */
@@ -61,6 +61,23 @@ function max (x:int, y:int): int
     else
         y
 }
+
+function search(x: int, root: AVLnode) : (results: bool)
+    requires isValidAndBalanced(root)
+    ensures (x in get_numbers(root)) == results //Making sure the x number that you are searching is in the AVL tree then make sure post condition result equals to x
+    decreases root
+{
+    if(root == Leaf) then //empty
+        false
+    else 
+        if (x < root.number) then
+            search(x, root.leftNode)
+        else if (x > root.number) then
+            search(x, root.rightNode)
+        else //found number in node
+            true
+}
+
 
 /* Verifies that the AVL tree is balanced and the balance factor of any node is never greater than 1 or less than -1 */
 function check_balance(node:AVLnode): bool
