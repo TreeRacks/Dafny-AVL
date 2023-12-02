@@ -1,12 +1,14 @@
 datatype AVLnode = Leaf  |  Node (leftNode: AVLnode, height: nat, number: int, rightNode: AVLnode)
 
 /* Ensure the AVL tree is a binary search tree */
-predicate BST(leftTree:AVLnode, number:int, rightTree:AVLnode)
+predicate BST(leftTree:AVLnode, number:int, rightTree:AVLnode, repr: set<AVLnode>)
 {
     var leftNumbers := get_numbers(leftTree);
     var rightNumbers := get_numbers(rightTree);
     (forall i: int :: i in leftNumbers ==> i < number) && 
-    (forall j: int :: j in rightNumbers ==> number < j)
+    (forall j: int :: j in rightNumbers ==> number < j) &&
+    (leftTree == Leaf || (leftTree in repr && BST(leftTree.leftNode, leftTree.number, leftTree.rightNode, repr))) 
+    //&& (rightTree == Leaf || (rightTree in repr && BST(rightTree.leftNode, rightTree.number, rightTree.rightNode, repr)))
 }
 
 /* Function that returns the numbers in an AVL tree in order */
