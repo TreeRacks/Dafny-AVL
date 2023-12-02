@@ -62,18 +62,18 @@ function max (x:int, y:int): int
         y
 }
 
-function search(x: int, root: AVLnode) : (results: bool)
+function search(findNumber: int, root: AVLnode) : (results: bool)
     requires isValidAndBalanced(root)
-    ensures (x in get_numbers(root)) == results //Making sure the x number that you are searching is in the AVL tree then make sure post condition result equals to x
+    ensures (findNumber in get_numbers(root)) == results //Making sure the x number that you are searching is in the AVL tree then make sure post condition result equals to x
     decreases root
 {
     if(root == Leaf) then //empty
         false
     else 
-        if (x < root.number) then
-            search(x, root.leftNode)
-        else if (x > root.number) then
-            search(x, root.rightNode)
+        if (findNumber < root.number) then
+            search(findNumber, root.leftNode)
+        else if (findNumber > root.number) then
+            search(findNumber, root.rightNode)
         else //found number in node
             true
 }
