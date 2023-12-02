@@ -25,7 +25,7 @@ function get_node_height(node:AVLnode): nat
         node.height
 }
 
-function method max (x:int, y:int): int
+function max (x:int, y:int): int
 {
     if x >= y then 
         x
