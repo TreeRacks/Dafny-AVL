@@ -63,8 +63,16 @@ requires node != Leaf
     false
 }
 
+function verify_height(root: AVLnode): bool
+requires root != Leaf
+{
+    var root_height := get_node_height(root);
+    var computed_height := 1 + max(get_node_height(root.rightNode), get_node_height(root.leftNode));
+    root_height == computed_height
+}
+
 /* Ensures the AVL tree is correct */
-predicate isAVL (root: AVLnode)
+predicate isValidAndBalanced (root: AVLnode)
 ensures   root.Node? ==> root.number in get_numbers(root);
 decreases root
 {
@@ -72,9 +80,9 @@ decreases root
     then
         true
     else
-        get_node_height(root) == 1 + max(get_node_height(root.rightNode), get_node_height(root.leftNode)) && 
-        isAVL(root.leftNode) &&
-        isAVL(root.rightNode) && 
-        BST(root.leftNode, root.number, root.rightNode, get_nodes(root)) &&
-        check_balance(root)
+        isValidAndBalanced(root.leftNode) &&
+        isValidAndBalanced(root.rightNode) && 
+        check_balance(root) &&
+        verify_height(root) && 
+        BST(root.leftNode, root.number, root.rightNode, get_nodes(root))
 }
