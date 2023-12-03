@@ -138,7 +138,7 @@ ensures setOfNumbersIsValid(leftTree, newNum, rightTree, result)
 }
 
 // Does a left left rotation on a given node
-function leftLeftRotation(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
+function rotateLeft(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
 requires isValidAndBalanced(leftTree)
 requires isValidAndBalanced(rightTree)
 requires get_node_height(leftTree) == get_node_height(rightTree) + 2
@@ -158,7 +158,7 @@ ensures get_node_height(result) <= max(get_node_height(leftTree), get_node_heigh
 }
 
 // Does a left right rotation on a given node
-function leftRightRotation(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
+function rotateLeftThenRight(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
 requires isValidAndBalanced(leftTree)
 requires isValidAndBalanced(rightTree)
 requires get_node_height(leftTree) == get_node_height(rightTree) + 2
@@ -179,7 +179,7 @@ ensures setOfNumbersIsValid(leftTree, numberToRotate, rightTree, result)
 }
 
 // Does a right right rotation on a given node
-function rightRightRotation(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
+function rotateRight(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
 requires isValidAndBalanced(leftTree)
 requires isValidAndBalanced(rightTree)
 requires get_node_height(rightTree) == get_node_height(leftTree) + 2
@@ -199,7 +199,7 @@ ensures get_node_height(result) <= max(get_node_height(leftTree), get_node_heigh
 }
 
 // Does a right left rotation on a given node
-function rightLeftRotation(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
+function rotateRightThenLeft(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
 requires isValidAndBalanced(leftTree)
 requires isValidAndBalanced(rightTree)
 requires get_node_height(rightTree) == get_node_height(leftTree) + 2
@@ -217,4 +217,31 @@ ensures setOfNumbersIsValid(leftTree, numberToRotate, rightTree, result)
 {
     createAVLTree(createAVLTree(leftTree, numberToRotate, rightTree.leftNode.leftNode),
                  rightTree.leftNode.number, createAVLTree(rightTree.leftNode.rightNode, rightTree.number, rightTree.rightNode))
+}
+
+function rebalance(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
+requires isValidAndBalanced(rightTree)
+requires isValidAndBalanced(leftTree)
+requires -2 <= (get_node_height(leftTree)-get_node_height(rightTree)) <= 2
+requires BST(leftTree, numberToRotate, rightTree, get_nodes(leftTree) + get_nodes(rightTree))
+ensures setOfNumbersIsValid(leftTree, numberToRotate, rightTree, result)
+ensures isValidAndBalanced(rebalance(leftTree, numberToRotate, rightTree))
+ensures get_node_height(rebalance(leftTree, numberToRotate, rightTree)) <= max(get_node_height(leftTree), get_node_height(rightTree)) + 1	
+ensures max(get_node_height(leftTree), get_node_height(rightTree)) <= get_node_height(rebalance(leftTree, numberToRotate, rightTree))  	
+{    
+   if -1 <= (get_node_height(leftTree)-get_node_height(rightTree)) <= 1 
+      then createAVLTree(leftTree, numberToRotate, rightTree)
+      else  if get_node_height(leftTree) == get_node_height(rightTree) + 2 
+              then
+                if get_node_height(leftTree.leftNode) >= get_node_height(leftTree.rightNode)
+                then
+                    rotateLeft(leftTree, numberToRotate, rightTree)
+                else
+                    rotateLeftThenRight(leftTree, numberToRotate, rightTree)
+              else
+                if get_node_height(rightTree.rightNode) >= get_node_height(rightTree.leftNode)
+                then
+                    rotateRight(leftTree, numberToRotate, rightTree)
+                else
+                    rotateRightThenLeft(leftTree, numberToRotate, rightTree)
 }
