@@ -1,5 +1,5 @@
 
-datatype AVLnode = Null  |  Node(leftNode: AVLnode, rightNode: AVLnode, height: nat, number: int)
+datatype AVLnode = Null | Node(leftNode: AVLnode, rightNode: AVLnode, height: nat, number: int)
 
 // Ensure the AVL tree is a binary search tree
 predicate BST(leftTree:AVLnode, number:int, rightTree:AVLnode, allNodes: set<AVLnode>)
@@ -253,7 +253,7 @@ function insert(number: int, root: AVLnode) : (result:AVLnode)
 requires isValidAndBalanced(root)
 ensures isValidAndBalanced(result)
 ensures get_numbers(result) == (get_numbers(root) + {number})
-ensures 0 <= (get_node_height(result) - get_node_height(root)) <= 1                    
+ensures 0 <= (get_node_height(result) - get_node_height(root)) <= 1
 decreases root
 {
     if(root == Null)
