@@ -219,6 +219,7 @@ ensures setOfNumbersIsValid(leftTree, numberToRotate, rightTree, result)
                  rightTree.leftNode.number, createAVLTree(rightTree.leftNode.rightNode, rightTree.number, rightTree.rightNode))
 }
 
+// This function rebalances the given AVL tree
 function rebalance(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
 requires isValidAndBalanced(rightTree)
 requires isValidAndBalanced(leftTree)
