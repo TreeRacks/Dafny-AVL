@@ -8,7 +8,7 @@ predicate BST(leftTree:AVLnode, number:int, rightTree:AVLnode, allNodes: set<AVL
     var rightNumbers := get_numbers(rightTree);
     (forall i: int :: i in leftNumbers ==> i < number) && 
     (forall j: int :: j in rightNumbers ==> number < j) &&
-    (leftTree == Leaf || (leftTree in allNodes && BST(leftTree.leftNode, leftTree.number, leftTree.rightNode, allNodes))) &&
+    (leftTree == Leaf || (leftTree in allNodes)) &&
     (rightTree == Leaf || (rightTree in allNodes))
 }
 
@@ -67,7 +67,8 @@ function max (x:int, y:int): int
 // Searches an AVL tree and checks if a number is present within it
 function search(findNumber: int, root: AVLnode) : (results: bool)
     requires isValidAndBalanced(root)
-    ensures (findNumber in get_numbers(root)) == results //Making sure the number that you are searching is in the AVL tree then make sure post condition result equals to the number
+    //Making sure the number that you are searching is in the AVL tree then make sure post condition result equals to the number
+    ensures (findNumber in get_numbers(root)) == results
     decreases root
 {
     if(root == Leaf) then //empty
@@ -119,14 +120,58 @@ decreases root
         BST(root.leftNode, root.number, root.rightNode, get_nodes(root))
 }
 
+predicate setOfNumbersIsValid(leftTree: AVLnode, newNum: int, rightTree: AVLnode, combinedTree: AVLnode)
+{
+    get_numbers(leftTree) + get_numbers(rightTree) + {newNum} == get_numbers(combinedTree)
+}
+
 // Creates a new tree given 2 valid AVL trees and a new number
 function createAVLTree(leftTree: AVLnode, newNum: int, rightTree: AVLnode): (result:AVLnode)
 requires isValidAndBalanced(leftTree)
 requires isValidAndBalanced(rightTree)
 requires -1 <= get_node_height(leftTree) - get_node_height(rightTree) <= 1
 requires BST(leftTree, newNum, rightTree, get_nodes(leftTree) + get_nodes(rightTree))
-ensures  get_numbers(leftTree) + get_numbers(rightTree) + {newNum} == get_numbers(result)
+ensures setOfNumbersIsValid(leftTree, newNum, rightTree, result)
 //ensures isValidAndBalanced(result)
 {
     Node(leftTree, rightTree, 1 + max (get_node_height(leftTree), get_node_height(rightTree)), newNum)
+}
+
+function leftLeftRotation(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
+requires isValidAndBalanced(leftTree)
+requires isValidAndBalanced(rightTree)
+requires get_node_height(leftTree) == get_node_height(rightTree) + 2
+requires get_node_height(leftTree.leftNode) >= get_node_height(leftTree.rightNode)
+requires BST(leftTree, numberToRotate, rightTree, get_nodes(leftTree) + get_nodes(rightTree))
+requires isValidAndBalanced(leftTree.rightNode)
+requires isValidAndBalanced(leftTree.leftNode)
+requires verify_height(leftTree.leftNode)
+ensures verify_height(leftTree.leftNode)
+ensures isValidAndBalanced(result)
+ensures setOfNumbersIsValid(leftTree, numberToRotate, rightTree, result)
+ensures max(get_node_height(leftTree), get_node_height(rightTree)) <= get_node_height(result)
+ensures get_node_height(result) <= max(get_node_height(leftTree), get_node_height(rightTree)) + 1
+//ensures verify_height(leftTree.rightNode)
+{
+    createAVLTree(leftTree.leftNode, leftTree.number, createAVLTree(leftTree.rightNode, numberToRotate, rightTree))
+}
+
+function leftRightRotation(leftTree: AVLnode, numberToRotate: int, rightTree: AVLnode): (result: AVLnode)
+requires isValidAndBalanced(leftTree)
+requires isValidAndBalanced(rightTree)
+requires get_node_height(leftTree) == get_node_height(rightTree) + 2
+requires BST(leftTree, numberToRotate, rightTree, get_nodes(leftTree) + get_nodes(rightTree))
+requires isValidAndBalanced(leftTree.rightNode)
+requires isValidAndBalanced(leftTree.leftNode)
+requires get_node_height(leftTree.leftNode) < get_node_height(leftTree.rightNode)
+requires verify_height(leftTree.rightNode)
+//ensures verify_height(leftTree.leftNode)
+ensures verify_height(leftTree.rightNode)
+ensures max(get_node_height(leftTree), get_node_height(rightTree)) <= get_node_height(result)
+ensures max(get_node_height(leftTree), get_node_height(rightTree)) + 1 > get_node_height(result)
+ensures isValidAndBalanced(result)
+ensures setOfNumbersIsValid(leftTree, numberToRotate, rightTree, result)
+{
+    createAVLTree(createAVLTree(leftTree.leftNode, leftTree.number, leftTree.rightNode.leftNode),
+                 leftTree.rightNode.number, createAVLTree(leftTree.rightNode.rightNode, numberToRotate, rightTree))
 }
