@@ -249,6 +249,7 @@ ensures max(get_node_height(leftTree), get_node_height(rightTree)) <= get_node_h
                 rotateLeftThenRight(leftTree, numberToRotate, rightTree)
 }
 
+// This function inserts a new node into an AVL tree
 function insert(number: int, root: AVLnode) : (result:AVLnode)
 requires isValidAndBalanced(root)
 ensures isValidAndBalanced(result)
