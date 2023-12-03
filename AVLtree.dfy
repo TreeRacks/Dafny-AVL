@@ -16,10 +16,10 @@ predicate BST(leftTree:AVLnode, number:int, rightTree:AVLnode, allNodes: set<AVL
 predicate check_root(root: AVLnode)
 {
     if(root == Null)
-        then
-            true
-        else
-            root.number in get_numbers(root)
+    then
+        true
+    else
+        root.number in get_numbers(root)
 }
 
 // Function that returns the numbers in an AVL tree in order
