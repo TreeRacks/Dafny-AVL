@@ -267,7 +267,7 @@ decreases root
 }
 
 // Finds the minimum number in an AVL tree and deletes it, returns the number and the new tree
-function deleteMin(root: AVLnode) : (result: (int, AVLnode))
+function deleteMostLeftChild(root: AVLnode) : (result: (int, AVLnode))
 decreases root
 requires root != Null
 requires isValidAndBalanced(root)
@@ -279,7 +279,7 @@ ensures forall i: int | i in get_numbers(root) :: result.0 <= i
     if(root.leftNode == Null )then
         (root.number, root.rightNode)
     else
-        var (minNumber, minLeftNode) := deleteMin(root.leftNode);
+        var (minNumber, minLeftNode) := deleteMostLeftChild(root.leftNode);
         (minNumber, rebalance(minLeftNode, root.number, root.rightNode))
 }
 
@@ -300,7 +300,7 @@ ensures get_numbers(result) == get_numbers(root) - {number}
             rebalance(delete(number,root.leftNode), root.number, root.rightNode)
         else
             if(root.rightNode != Null) then
-                var (minNumber, minRightNode) := deleteMin(root.rightNode);
+                var (minNumber, minRightNode) := deleteMostLeftChild(root.rightNode);
                 rebalance(root.leftNode, minNumber, minRightNode)
             else
                 root.leftNode
