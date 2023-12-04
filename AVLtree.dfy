@@ -266,21 +266,24 @@ decreases root
             root
 }
 
+datatype deletedNodePair = deletedNodePair(deletedNumber:int, newRoot:AVLnode)
+
 // Finds the minimum number in an AVL tree and deletes it, returns the number and the new tree
-function deleteMostLeftChild(root: AVLnode) : (result: (int, AVLnode))
+function deleteMostLeftChild(root: AVLnode) : (result: deletedNodePair)
 decreases root
 requires root != Null
 requires isValidAndBalanced(root)
-ensures result.0 in get_numbers(root)
-ensures get_numbers(root) - {result.0} == get_numbers(result.1)
-ensures 0 <= get_node_height(root) - get_node_height(result.1) <= 1
-ensures forall i: int | i in get_numbers(root) :: result.0 <= i
+ensures result.deletedNumber in get_numbers(root)
+ensures get_numbers(root) - {result.deletedNumber} == get_numbers(result.newRoot)
+ensures 0 <= get_node_height(root) - get_node_height(result.newRoot) <= 1
+ensures forall i: int | i in get_numbers(root) :: result.deletedNumber <= i
 {
-    if(root.leftNode == Null )then
-        (root.number, root.rightNode)
+    if(root.leftNode == Null )
+    then
+        deletedNodePair(root.number, root.rightNode)
     else
-        var (minNumber, minLeftNode) := deleteMostLeftChild(root.leftNode);
-        (minNumber, rebalance(minLeftNode, root.number, root.rightNode))
+        var deletionResult := deleteMostLeftChild(root.leftNode);
+        deletedNodePair(deletionResult.deletedNumber, rebalance(deletionResult.newRoot, root.number, root.rightNode))
 }
 
 // Deletes a specific number from an AVL tree
@@ -291,17 +294,21 @@ ensures isValidAndBalanced(result)
 ensures 0 <= get_node_height(root) - get_node_height(result) <= 1              
 ensures get_numbers(result) == get_numbers(root) - {number}			 
 {
-    if (root == Null) then
+    if (root == Null)
+    then
         root
     else
-        if (number > root.number) then
+        if (number > root.number)
+        then
             rebalance(root.leftNode, root.number, delete(number, root.rightNode))
-        else if (number < root.number) then
+        else if (number < root.number)
+        then
             rebalance(delete(number,root.leftNode), root.number, root.rightNode)
         else
-            if(root.rightNode != Null) then
-                var (minNumber, minRightNode) := deleteMostLeftChild(root.rightNode);
-                rebalance(root.leftNode, minNumber, minRightNode)
+            if(root.rightNode != Null)
+            then
+                var deletionResult := deleteMostLeftChild(root.rightNode);
+                rebalance(root.leftNode, deletionResult.deletedNumber, deletionResult.newRoot)
             else
                 root.leftNode
 }
