@@ -132,7 +132,6 @@ requires isValidAndBalanced(rightTree)
 requires -1 <= get_node_height(leftTree) - get_node_height(rightTree) <= 1
 requires BST(leftTree, newNum, rightTree, get_nodes(leftTree) + get_nodes(rightTree))
 ensures setOfNumbersIsValid(leftTree, newNum, rightTree, result)
-//ensures isValidAndBalanced(result)
 {
     Node(leftTree, rightTree, 1 + max (get_node_height(leftTree), get_node_height(rightTree)), newNum)
 }
@@ -152,7 +151,6 @@ ensures isValidAndBalanced(result)
 ensures setOfNumbersIsValid(leftTree, numberToRotate, rightTree, result)
 ensures max(get_node_height(leftTree), get_node_height(rightTree)) <= get_node_height(result)
 ensures get_node_height(result) <= max(get_node_height(leftTree), get_node_height(rightTree)) + 1
-//ensures verify_height(leftTree.rightNode)
 {
     createAVLTree(leftTree.leftNode, leftTree.number, createAVLTree(leftTree.rightNode, numberToRotate, rightTree))
 }
@@ -167,7 +165,6 @@ requires isValidAndBalanced(leftTree.rightNode)
 requires isValidAndBalanced(leftTree.leftNode)
 requires get_node_height(leftTree.leftNode) < get_node_height(leftTree.rightNode)
 requires verify_height(leftTree.rightNode)
-//ensures verify_height(leftTree.leftNode)
 ensures verify_height(leftTree.rightNode)
 ensures max(get_node_height(leftTree), get_node_height(rightTree)) <= get_node_height(result)
 ensures max(get_node_height(leftTree), get_node_height(rightTree)) + 1 > get_node_height(result)
@@ -193,7 +190,6 @@ ensures isValidAndBalanced(result)
 ensures setOfNumbersIsValid(leftTree, numberToRotate, rightTree, result)
 ensures max(get_node_height(leftTree), get_node_height(rightTree)) <= get_node_height(result)
 ensures get_node_height(result) <= max(get_node_height(leftTree), get_node_height(rightTree)) + 1
-//ensures verify_height(rightTree.leftNode)
 {
     createAVLTree(createAVLTree(leftTree, numberToRotate, rightTree.leftNode), rightTree.number, rightTree.rightNode)
 }
@@ -208,7 +204,6 @@ requires isValidAndBalanced(rightTree.rightNode)
 requires isValidAndBalanced(rightTree.leftNode)
 requires get_node_height(rightTree.rightNode) < get_node_height(rightTree.leftNode)
 requires verify_height(rightTree.leftNode)
-//ensures verify_height(rightTree.rightNode)
 ensures verify_height(rightTree.leftNode)
 ensures max(get_node_height(leftTree), get_node_height(rightTree)) <= get_node_height(result)
 ensures max(get_node_height(leftTree), get_node_height(rightTree)) + 1 > get_node_height(result)
@@ -250,7 +245,7 @@ ensures max(get_node_height(leftTree), get_node_height(rightTree)) <= get_node_h
 }
 
 // This function inserts a new node into an AVL tree
-function insert(number: int, root: AVLnode) : (result:AVLnode)
+function insert(number: int, root: AVLnode) : (result: AVLnode)
 requires isValidAndBalanced(root)
 ensures isValidAndBalanced(result)
 ensures get_numbers(result) == (get_numbers(root) + {number})
@@ -269,4 +264,44 @@ decreases root
             rebalance(insert(number, root.leftNode), root.number, root.rightNode)
         else 
             root
+}
+
+// Finds the minimum number in an AVL tree and deletes it, returns the number and the new tree
+function deleteMin(root: AVLnode) : (result: (int, AVLnode))
+decreases root
+requires root != Null
+requires isValidAndBalanced(root)
+ensures result.0 in get_numbers(root)
+ensures get_numbers(root) - {result.0} == get_numbers(result.1)
+ensures 0 <= get_node_height(root) - get_node_height(result.1) <= 1
+ensures forall i: int | i in get_numbers(root) :: result.0 <= i
+{
+    if(root.leftNode == Null )then
+        (root.number, root.rightNode)
+    else
+        var (minNumber, minLeftNode) := deleteMin(root.leftNode);
+        (minNumber, rebalance(minLeftNode, root.number, root.rightNode))
+}
+
+// Deletes a specific number from an AVL tree
+function delete(number: int, root: AVLnode) : (result: AVLnode)
+decreases root
+requires isValidAndBalanced(root)
+ensures isValidAndBalanced(result)                                                
+ensures 0 <= get_node_height(root) - get_node_height(result) <= 1              
+ensures get_numbers(result) == get_numbers(root) - {number}			 
+{
+    if (root == Null) then
+        root
+    else
+        if (number > root.number) then
+            rebalance(root.leftNode, root.number, delete(number, root.rightNode))
+        else if (number < root.number) then
+            rebalance(delete(number,root.leftNode), root.number, root.rightNode)
+        else
+            if(root.rightNode != Null) then
+                var (minNumber, minRightNode) := deleteMin(root.rightNode);
+                rebalance(root.leftNode, minNumber, minRightNode)
+            else
+                root.leftNode
 }
